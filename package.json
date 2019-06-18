@@ -1,0 +1,14 @@
+{
+  "name": "password-input",
+  "version": "0.0.1",
+  "description": "Accessible password input web component",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Yoni Jah <yj@non.co.il>",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^5.16.0"
+  }
+}
