@@ -56,7 +56,8 @@
             left: var(--pi-button-focus-left, calc(var(--pi-button-left, -2em) * 2 - 4px));
         }
     </style>
-    <button class="sr-only sr-only-focusable hear" role="switch" aria-checked="false" title="${hearLabel}"><i class="icon"></i></button> <button role="switch" aria-checked="false" class="see" title="${seeLabel}"><i class="icon"></i></button>
+    <p class="sr-only">Enhanced password input with usability controllers available after input</p>
+    <button class="sr-only sr-only-focusable hear" role="switch" aria-checked="false" title="${hearLabel}" aria-label="${hearLabel}"><i class="icon"></i></button> <button role="switch" aria-checked="false" class="see" aria-label="${seeLabel}" title="${seeLabel}"><i class="icon"></i></button>
     `;
 
     class PasswordInputButtons extends HTMLElement {
@@ -64,11 +65,7 @@
             super();
             if (!this.disableShadow) {
                 this._shadowRoot = this.attachShadow({ 'mode': 'open' });
-                this._shadowRoot.appendChild(shadowTemplate.content.cloneNode(true));
-                this.$buttons = {
-                    hear: this._shadowRoot.querySelector('.hear'),
-                    see: this._shadowRoot.querySelector('.see')
-                };
+                this.populateTemplate(this._shadowRoot);
             }
         }
 
@@ -76,15 +73,19 @@
             this.style.position = 'relative';
             const state = {hear: false, see: false};
             if (this.disableShadow) {
-                this.appendChild(shadowTemplate.content.cloneNode(true));
-                this.$buttons = {
-                    hear: this.querySelector('.hear'),
-                    see: this.querySelector('.see')
-                };
+                this.populateTemplate(this);
             }
 
             this.$buttons.hear.addEventListener('click', this.handleChangeEvent.bind(this, 'hear', state));
             this.$buttons.see.addEventListener('click', this.handleChangeEvent.bind(this, 'see', state));
+        }
+
+        populateTemplate (element) {
+            element.appendChild(shadowTemplate.content.cloneNode(true));
+            this.$buttons = {
+                hear: element.querySelector('.hear'),
+                see: element.querySelector('.see')
+            };
         }
 
         check (el) {
@@ -129,13 +130,16 @@
     class PasswordInput extends HTMLInputElement {
         connectedCallback () {
             let originalIndent = null;
+            const buttonsId = 'gen_id' + Math.ceil(Math.random() * 10000);
             this.setAttribute('type', 'password');
+            this.setAttribute('aria-describedby', buttonsId);
             this.$buttons = document.createElement('password-input-buttons');
+            this.$buttons.setAttribute('id', buttonsId)
             this.parentNode.insertBefore(this.$buttons, this.nextSibling);
 
             this.addEventListener('focus', () => {
-                 const hear = this.getAttribute('hear');
-                 const see = this.getAttribute('see');
+                 const hear = this.getAttribute('data-hear');
+                 const see = this.getAttribute('data-see');
                  if (hear) {
                      originalIndent = this.style.textIndent || null;
                      this.style.textIndent = '-100000px';
@@ -147,21 +151,21 @@
 
             this.addEventListener('blur', () => {
                  this.setAttribute('type', 'password');
-                 if (this.getAttribute('hear')) {
+                 if (this.getAttribute('data-hear')) {
                      this.style.textIndent = originalIndent;
                  }
             });
 
             this.$buttons.addEventListener('change', (e) => {
                 if (e.detail.hear) {
-                    this.setAttribute('hear', true);
-                    this.removeAttribute('see');
+                    this.setAttribute('data-hear', true);
+                    this.removeAttribute('data-see');
                 } else if (e.detail.see) {
-                    this.setAttribute('see', true);
-                    this.removeAttribute('hear');
+                    this.setAttribute('data-see', true);
+                    this.removeAttribute('data-hear');
                 } else {
-                    this.removeAttribute('see');
-                    this.removeAttribute('hear');
+                    this.removeAttribute('data-see');
+                    this.removeAttribute('data-hear');
                 }
                 this.focus();
             });
