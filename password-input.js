@@ -47,8 +47,8 @@
         }
 
         .sr-only {
-        	position: absolute;
-        	left: -10000px;
+            position: absolute;
+            left: -10000px;
         }
 
         .sr-only-focusable:focus,
@@ -70,7 +70,7 @@
         }
 
         connectedCallback () {
-            this.style.position = 'relative';
+            this.style.position = 'absolute';
             const state = {hear: false, see: false};
             if (this.disableShadow) {
                 this.populateTemplate(this);
