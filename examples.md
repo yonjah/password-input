@@ -13,6 +13,9 @@ The `password-input` web component will create a password input with two accessi
     font-weight: normal;
     font-style: normal;
 }
+input {
+    min-height: 24px;
+}
 </style>
 <script type="text/javascript" src="./password-input.js" markdown="0"></script>
 
