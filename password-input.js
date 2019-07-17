@@ -7,7 +7,7 @@
         init: 'Enhanced password input, usability controllers after input',
         hear: 'Enhanced password input, hear enabled',
         see: 'Enhanced password input, see enabled'
-    }
+    };
 
     const shadowTemplate = document.createElement('template');
     shadowTemplate.innerHTML = `
