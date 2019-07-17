@@ -3,6 +3,11 @@
 (function () {
     const hearLabel = "Hear password as you type. Password will not be visible";
     const seeLabel  = "Show Password. Password will be visible on the screen";
+    const desc = {
+        init: 'Enhanced password input, usability controllers after input',
+        hear: 'Enhanced password input, hear enabled',
+        see: 'Enhanced password input, see enabled'
+    }
 
     const shadowTemplate = document.createElement('template');
     shadowTemplate.innerHTML = `
@@ -56,7 +61,6 @@
             left: var(--pi-button-focus-left, calc(var(--pi-button-left, -2em) * 2 - 4px));
         }
     </style>
-    <p class="sr-only">Enhanced password input with usability controllers available after input</p>
     <button class="sr-only sr-only-focusable hear" role="switch" aria-checked="false" title="${hearLabel}" aria-label="${hearLabel}"><i class="icon"></i></button> <button role="switch" aria-checked="false" class="see" aria-label="${seeLabel}" title="${seeLabel}"><i class="icon"></i></button>
     `;
 
@@ -129,13 +133,18 @@
 
     class PasswordInput extends HTMLInputElement {
         connectedCallback () {
+            const descId = 'gen_id' + Math.ceil(Math.random() * 10000);
             let originalIndent = null;
-            const buttonsId = 'gen_id' + Math.ceil(Math.random() * 10000);
             this.setAttribute('type', 'password');
-            this.setAttribute('aria-describedby', buttonsId);
             this.$buttons = document.createElement('password-input-buttons');
-            this.$buttons.setAttribute('id', buttonsId)
+            this.setAttribute('aria-describedby', descId);
             this.parentNode.insertBefore(this.$buttons, this.nextSibling);
+            this.$desc = document.createElement('p');
+            this.$desc.innerText = desc.init;
+            this.$desc.setAttribute('id', descId);
+            this.$desc.style.position = 'absolute';
+            this.$desc.style.left = '-10000px';
+            this.parentNode.insertBefore(this.$desc, this.$buttons.nextSibling);
 
             this.addEventListener('focus', () => {
                  const hear = this.getAttribute('data-hear');
@@ -160,12 +169,15 @@
                 if (e.detail.hear) {
                     this.setAttribute('data-hear', true);
                     this.removeAttribute('data-see');
+                    this.$desc.innerText = desc.hear;
                 } else if (e.detail.see) {
                     this.setAttribute('data-see', true);
                     this.removeAttribute('data-hear');
+                    this.$desc.innerText = desc.see;
                 } else {
                     this.removeAttribute('data-see');
                     this.removeAttribute('data-hear');
+                    this.$desc.innerText = desc.init;
                 }
                 this.focus();
             });
